@@ -44,6 +44,8 @@ public class PreFilter extends ZuulFilter {
             checker.getStubbedResponse(body).ifPresent(s -> {
                 log.info("run -> stubbed response: {}", s);
                 context.setResponseBody(s);
+                context.getResponse().setHeader("Content-Type", "text/xml;charset=UTF-8");
+                context.setSendZuulResponse(false);
             });
         } catch (IOException e) {
             log.warn("run -> exception: {}", e.getMessage());
