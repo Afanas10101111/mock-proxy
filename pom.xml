@@ -13,17 +13,25 @@
     <artifactId>mock-proxy</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>mock-proxy</name>
-    <description>mock-proxy</description>
+    <description>Can mock or can forward. You choose.</description>
 
     <properties>
         <java.version>1.8</java.version>
+        <gateway.version>3.1.0</gateway.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter</artifactId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-gateway</artifactId>
+            <version>${gateway.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
