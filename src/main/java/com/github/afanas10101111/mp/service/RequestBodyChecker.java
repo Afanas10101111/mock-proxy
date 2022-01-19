@@ -6,6 +6,7 @@ import com.github.afanas10101111.mp.repository.MockRuleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -15,6 +16,7 @@ import java.util.regex.Pattern;
 public class RequestBodyChecker {
     private final MockRuleRepository repository;
 
+    @Transactional
     public Optional<String> getStubbedResponse(String body) {
         List<MockRule> rules = repository.findAll();
         for (MockRule rule : rules) {
@@ -28,7 +30,7 @@ public class RequestBodyChecker {
                     break;
                 }
             }
-            if (needToStub) {
+            if (needToStub && rule.needToRepeat()) {
                 return Optional.of(rule.getStub());
             }
         }

@@ -30,15 +30,19 @@ public class MockRule {
     private List<PatternKeeper> patterns = new ArrayList<>();
 
     private String stub;
-    private int counter;
+    private int repeatLimit;
+    private int repeatCounter;
 
-    public void addPatternString(PatternKeeper patternKeeper) {
-        patterns.add(patternKeeper);
-        patternKeeper.setMockRule(this);
+    public boolean needToRepeat() {
+        boolean needToRepeat = repeatLimit < 0 || repeatCounter++ < repeatLimit;
+        if (repeatCounter > repeatLimit) {
+            repeatCounter = 0;
+        }
+        return needToRepeat;
     }
 
-    public void removePatternString(PatternKeeper patternKeeper) {
-        patterns.remove(patternKeeper);
-        patternKeeper.setMockRule(null);
+    public void setPatterns(List<PatternKeeper> patterns) {
+        patterns.forEach(p -> p.setMockRule(this));
+        this.patterns = patterns;
     }
 }

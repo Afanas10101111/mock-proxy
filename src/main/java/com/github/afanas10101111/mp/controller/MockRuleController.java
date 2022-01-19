@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Collections;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -23,8 +24,8 @@ public class MockRuleController {
 
         MockRule rule = new MockRule();
         rule.setStub("<Response><Status>1</Status></Response>");
-        rule.setCounter(8);
-        rule.addPatternString(pattern);
+        rule.setRepeatLimit(4);
+        rule.setPatterns(Collections.singletonList(pattern));
 
         repository.save(rule);
 

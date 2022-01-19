@@ -12,7 +12,7 @@ import org.springframework.util.StringUtils;
 @Configuration
 @ConfigurationProperties(prefix = "proxy")
 class ProxyConfig {
-    public static final String ROUTE_ID = "main";
+    private static final String ROUTE_ID = "main";
 
     private String path;
     private String url;
