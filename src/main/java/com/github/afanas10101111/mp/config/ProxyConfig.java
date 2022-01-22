@@ -3,6 +3,7 @@ package com.github.afanas10101111.mp.config;
 import lombok.Getter;
 import lombok.Setter;
 import org.modelmapper.ModelMapper;
+import org.springframework.boot.autoconfigure.web.WebProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
@@ -29,6 +30,11 @@ public class ProxyConfig {
                         .readBody(String.class, StringUtils::hasText)
                         .uri(url))
                 .build();
+    }
+
+    @Bean
+    WebProperties.Resources webResources(WebProperties webProperties) {
+        return webProperties.getResources();
     }
 
     @Bean
