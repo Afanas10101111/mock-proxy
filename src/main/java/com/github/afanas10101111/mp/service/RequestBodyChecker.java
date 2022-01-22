@@ -1,35 +1,38 @@
 package com.github.afanas10101111.mp.service;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
+import com.github.afanas10101111.mp.model.MockRule;
+import com.github.afanas10101111.mp.model.PatternKeeper;
+import com.github.afanas10101111.mp.repository.MockRuleRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import javax.transaction.Transactional;
+import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.regex.Pattern;
 
+@RequiredArgsConstructor
 @Service
 public class RequestBodyChecker {
+    private final MockRuleRepository repository;
 
-    @Value("${request.body.part}")
-    private String requestBodyPart;
-    private String stubbedResponseBody;
-
-    @PostConstruct
-    private void initStubs() throws IOException {
-        stubbedResponseBody = new BufferedReader(new InputStreamReader(
-                new ClassPathResource("static/body.xml").getInputStream()
-        ))
-                .lines()
-                .collect(Collectors.joining(System.lineSeparator()));
-    }
-
+    @Transactional
     public Optional<String> getStubbedResponse(String body) {
-        if (body.contains(requestBodyPart)) {
-            return Optional.of(stubbedResponseBody);
+        List<MockRule> rules = repository.findAll();
+        for (MockRule rule : rules) {
+            List<PatternKeeper> patterns = rule.getPatterns();
+            boolean needToStub = false;
+            for (PatternKeeper pattern : patterns) {
+                if (Pattern.compile(pattern.getPattern()).matcher(body).find()) {
+                    needToStub = true;
+                } else {
+                    needToStub = false;
+                    break;
+                }
+            }
+            if (needToStub && rule.needToRepeat()) {
+                return Optional.of(rule.getStub());
+            }
         }
         return Optional.empty();
     }

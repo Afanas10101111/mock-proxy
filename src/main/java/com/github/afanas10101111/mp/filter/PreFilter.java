@@ -22,7 +22,7 @@ import java.util.Optional;
 @Component
 public class PreFilter implements GlobalFilter {
     private static final String CONTENT_TYPE = "text/xml;charset=UTF-8";
-    public static final String REQUEST_BODY_OBJECT = "cachedRequestBodyObject";
+    private static final String REQUEST_BODY_OBJECT = "cachedRequestBodyObject";
 
     private final RequestBodyChecker checker;
 
