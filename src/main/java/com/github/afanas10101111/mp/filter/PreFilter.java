@@ -1,6 +1,7 @@
 package com.github.afanas10101111.mp.filter;
 
 import com.github.afanas10101111.mp.service.RequestBodyChecker;
+import com.github.afanas10101111.mp.config.ProxyConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
@@ -24,6 +25,7 @@ public class PreFilter implements GlobalFilter {
     private static final String CONTENT_TYPE = "text/xml;charset=UTF-8";
     private static final String REQUEST_BODY_OBJECT = "cachedRequestBodyObject";
 
+    private final ProxyConfig proxyConfig;
     private final RequestBodyChecker checker;
 
     @Override
@@ -45,7 +47,7 @@ public class PreFilter implements GlobalFilter {
                 }));
             }
         }
-        log.info("filter -> redirected");
+        log.info("filter -> forwarded on:\n{}", proxyConfig.getUrl());
         return chain.filter(exchange);
     }
 }
