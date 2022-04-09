@@ -1,6 +1,7 @@
 package com.github.afanas10101111.mp.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,11 +13,12 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
+@EqualsAndHashCode(exclude = "id")
 @Entity
 @Table(name = "rules")
 public class MockRule {
@@ -27,7 +29,7 @@ public class MockRule {
 
     @JsonManagedReference
     @OneToMany(mappedBy = "mockRule", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PatternKeeper> patterns = new ArrayList<>();
+    private Set<PatternKeeper> patterns = new HashSet<>();
 
     private String stub;
     private int repeatLimit;
@@ -41,7 +43,7 @@ public class MockRule {
         return needToRepeat;
     }
 
-    public void setPatterns(List<PatternKeeper> patterns) {
+    public void setPatterns(Set<PatternKeeper> patterns) {
         patterns.forEach(p -> p.setMockRule(this));
         this.patterns = patterns;
     }

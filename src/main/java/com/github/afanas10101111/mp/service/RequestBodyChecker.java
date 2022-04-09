@@ -2,25 +2,23 @@ package com.github.afanas10101111.mp.service;
 
 import com.github.afanas10101111.mp.model.MockRule;
 import com.github.afanas10101111.mp.model.PatternKeeper;
-import com.github.afanas10101111.mp.repository.MockRuleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 @RequiredArgsConstructor
 @Service
 public class RequestBodyChecker {
-    private final MockRuleRepository repository;
+    private final MockRuleService service;
 
     @Transactional
     public Optional<String> getStubbedResponse(String body) {
-        List<MockRule> rules = repository.findAll();
-        for (MockRule rule : rules) {
-            List<PatternKeeper> patterns = rule.getPatterns();
+        for (MockRule rule : service.getAll()) {
+            Set<PatternKeeper> patterns = rule.getPatterns();
             boolean needToStub = false;
             for (PatternKeeper pattern : patterns) {
                 if (Pattern.compile(pattern.getPattern()).matcher(body).find()) {

@@ -2,7 +2,7 @@ package com.github.afanas10101111.mp.controller;
 
 import com.github.afanas10101111.mp.dto.MockRuleTo;
 import com.github.afanas10101111.mp.model.MockRule;
-import com.github.afanas10101111.mp.repository.MockRuleRepository;
+import com.github.afanas10101111.mp.service.MockRuleService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -25,44 +25,44 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping(value = "/_admin_config", produces = MediaType.APPLICATION_JSON_VALUE)
 public class MockRuleController {
-    private final MockRuleRepository repository;
+    private final MockRuleService service;
     private final ModelMapper mapper;
 
     @GetMapping
     public List<MockRule> getAll() {
         log.info("getAll -> get all rules");
-        return repository.findAll();
+        return service.getAll();
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public List<MockRule> add(@RequestBody MockRuleTo ruleTo) {
         log.info("add -> add rule:\n{}", ruleTo);
-        repository.save(mapper.map(ruleTo, MockRule.class));
-        return repository.findAll();
+        service.save(mapper.map(ruleTo, MockRule.class));
+        return service.getAll();
     }
 
     @PostMapping(value = "/group", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public List<MockRule> addGroup(@RequestBody List<MockRuleTo> ruleTos) {
         log.info("addGroup -> add group:\n{}", ruleTos);
-        repository.saveAll(ruleTos.stream()
+        service.saveAll(ruleTos.stream()
                 .map(r -> mapper.map(r, MockRule.class))
                 .collect(Collectors.toList()));
-        return repository.findAll();
+        return service.getAll();
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable int id) {
         log.info("delete -> delete rule with id = {}", id);
-        repository.deleteById(id);
+        service.delete(id);
     }
 
     @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteAll() {
         log.info("deleteAll -> delete all rules");
-        repository.deleteAll();
+        service.deleteAll();
     }
 }
