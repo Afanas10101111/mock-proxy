@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -17,9 +18,10 @@ import javax.persistence.Table;
 
 @Getter
 @Setter
+@ToString(exclude = "mockRule")
 @EqualsAndHashCode(of = "pattern")
 @Entity
-@Table(name = "pattern_keeper")
+@Table(name = "patterns")
 public class PatternKeeper {
 
     @JsonIgnore

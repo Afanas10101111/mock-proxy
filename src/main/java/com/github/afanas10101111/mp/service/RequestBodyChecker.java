@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.Optional;
-import java.util.Set;
 import java.util.regex.Pattern;
 
 @RequiredArgsConstructor
@@ -18,9 +17,8 @@ public class RequestBodyChecker {
     @Transactional
     public Optional<String> getStubbedResponse(String body) {
         for (MockRule rule : service.getAll()) {
-            Set<PatternKeeper> patterns = rule.getPatterns();
             boolean needToStub = false;
-            for (PatternKeeper pattern : patterns) {
+            for (PatternKeeper pattern : rule.getPatterns()) {
                 if (Pattern.compile(pattern.getPattern()).matcher(body).find()) {
                     needToStub = true;
                 } else {
