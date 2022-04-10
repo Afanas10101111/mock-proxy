@@ -3,7 +3,11 @@ package com.github.afanas10101111.mp.service;
 import com.github.afanas10101111.mp.model.MockRule;
 import com.github.afanas10101111.mp.model.PatternKeeper;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -12,11 +16,15 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@ExtendWith(MockitoExtension.class)
 class RequestBodyCheckerTest {
     private static final String SUBBED_RESPONSE = "SUBBED RESPONSE";
 
-    private static final MockRuleService service = Mockito.mock(MockRuleService.class);
-    private static final RequestBodyChecker checker = new RequestBodyChecker(service);
+    @Mock
+    private MockRuleService service;
+
+    @InjectMocks
+    private RequestBodyChecker checker;
 
     @Test
     void responseForNoMatchingBodyShouldNotBePresent() {

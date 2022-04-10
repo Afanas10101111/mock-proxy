@@ -20,11 +20,16 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.github.afanas10101111.mp.controller.MockRuleController.URL;
+
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-@RequestMapping(value = "/_admin_config", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = URL, produces = MediaType.APPLICATION_JSON_VALUE)
 public class MockRuleController {
+    public static final String URL = "/_admin_config";
+    public static final String GROUP = "/group";
+
     private final MockRuleService service;
     private final ModelMapper mapper;
 
@@ -42,7 +47,7 @@ public class MockRuleController {
         return service.getAll();
     }
 
-    @PostMapping(value = "/group", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = GROUP, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public List<MockRule> addGroup(@RequestBody List<MockRuleTo> ruleTos) {
         log.info("addGroup -> add group:\n{}", ruleTos);
