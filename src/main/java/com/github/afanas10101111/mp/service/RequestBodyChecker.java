@@ -2,6 +2,7 @@ package com.github.afanas10101111.mp.service;
 
 import com.github.afanas10101111.mp.model.MockRule;
 import com.github.afanas10101111.mp.model.PatternKeeper;
+import com.github.afanas10101111.mp.util.MockRuleUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -26,8 +27,8 @@ public class RequestBodyChecker {
                     break;
                 }
             }
-            if (needToStub && rule.needToRepeat()) {
-                return Optional.of(rule.getStub());
+            if (needToStub && MockRuleUtil.checkIsRepeatNeededAndHandleRepeatCounter(rule)) {
+                return Optional.ofNullable(rule.getStub());
             }
         }
         return Optional.empty();

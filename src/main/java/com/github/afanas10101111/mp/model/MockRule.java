@@ -12,6 +12,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -26,20 +28,19 @@ public class MockRule {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @NotEmpty
     @JsonManagedReference
     @OneToMany(mappedBy = "mockRule", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<PatternKeeper> patterns = new HashSet<>();
 
+    @NotNull
     private String stub;
+
     private int repeatLimit;
     private int repeatCounter;
 
-    public boolean needToRepeat() {
-        boolean needToRepeat = repeatLimit < 0 || repeatCounter++ < repeatLimit;
-        if (repeatCounter > repeatLimit) {
-            repeatCounter = 0;
-        }
-        return needToRepeat;
+    public int getAndIncrementRepeatCounter() {
+        return repeatCounter++;
     }
 
     public void setPatterns(Collection<PatternKeeper> patterns) {

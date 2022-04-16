@@ -15,6 +15,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.NotEmpty;
 
 @Getter
 @Setter
@@ -34,5 +35,6 @@ public class PatternKeeper {
     @JoinColumn(name = "mock_rule_id", nullable = false)
     private MockRule mockRule;
 
+    @NotEmpty
     private String pattern;
 }
