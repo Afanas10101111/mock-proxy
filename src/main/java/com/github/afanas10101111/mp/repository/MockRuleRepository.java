@@ -10,5 +10,5 @@ import java.util.List;
 @Repository
 @Transactional(readOnly = true)
 public interface MockRuleRepository extends JpaRepository<MockRule, Integer> {
-    List<MockRule> findAllByStub(String stub);
+    List<MockRule> findAllByBody(String body);
 }

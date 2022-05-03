@@ -15,7 +15,7 @@ public class MockRuleService {
     private final MockRuleRepository repository;
 
     public MockRule save(@NotNull MockRule newOne) {
-        List<MockRule> allByStub = repository.findAllByStub(newOne.getStub());
+        List<MockRule> allByStub = repository.findAllByBody(newOne.getBody());
         for (MockRule existing : allByStub) {
             if (existing.equals(newOne)) {
                 return existing;

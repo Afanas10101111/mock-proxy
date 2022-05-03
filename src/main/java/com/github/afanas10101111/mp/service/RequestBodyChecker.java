@@ -16,7 +16,7 @@ public class RequestBodyChecker {
     private final MockRuleService service;
 
     @Transactional
-    public Optional<String> getStubbedResponse(String body) {
+    public Optional<MockRule> getMockRule(String body) {
         for (MockRule rule : service.getAll()) {
             boolean needToStub = false;
             for (PatternKeeper pattern : rule.getPatterns()) {
@@ -28,7 +28,7 @@ public class RequestBodyChecker {
                 }
             }
             if (needToStub && MockRuleUtil.checkIsRepeatNeededAndHandleRepeatCounter(rule)) {
-                return Optional.ofNullable(rule.getStub());
+                return Optional.of(rule);
             }
         }
         return Optional.empty();

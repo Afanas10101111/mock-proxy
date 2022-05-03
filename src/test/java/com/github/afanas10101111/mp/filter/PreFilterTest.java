@@ -1,6 +1,7 @@
 package com.github.afanas10101111.mp.filter;
 
 import com.github.afanas10101111.mp.config.ProxyConfig;
+import com.github.afanas10101111.mp.model.MockRule;
 import com.github.afanas10101111.mp.service.RequestBodyChecker;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,7 +39,7 @@ class PreFilterTest {
         setupMocks(null);
         Mono<Void> filter = new PreFilter(proxyConfig, checker).filter(exchange, chain);
 
-        Mockito.verify(checker, Mockito.never()).getStubbedResponse(anyString());
+        Mockito.verify(checker, Mockito.never()).getMockRule(anyString());
         Mockito.verify(exchange, Mockito.never()).getResponse();
         Mockito.verify(exchange, Mockito.never()).getAttributes();
         assertThat(filter).isEqualTo(empty);
@@ -49,7 +50,7 @@ class PreFilterTest {
         setupMocks("someBodyWithoutStub", null);
         Mono<Void> filter = new PreFilter(proxyConfig, checker).filter(exchange, chain);
 
-        Mockito.verify(checker, Mockito.only()).getStubbedResponse(anyString());
+        Mockito.verify(checker, Mockito.only()).getMockRule(anyString());
         Mockito.verify(exchange, Mockito.never()).getResponse();
         Mockito.verify(exchange, Mockito.never()).getAttributes();
         assertThat(filter).isEqualTo(empty);
@@ -62,7 +63,7 @@ class PreFilterTest {
         Mockito.when(exchange.getResponse()).thenReturn(response);
         Mono<Void> filter = new PreFilter(proxyConfig, checker).filter(exchange, chain);
 
-        Mockito.verify(checker, Mockito.only()).getStubbedResponse(anyString());
+        Mockito.verify(checker, Mockito.only()).getMockRule(anyString());
         Mockito.verify(exchange, Mockito.atLeastOnce()).getResponse();
         Mockito.verify(exchange, Mockito.atLeastOnce()).getAttributes();
         assertThat(filter).isNotEqualTo(empty);
@@ -70,7 +71,12 @@ class PreFilterTest {
 
     private void setupMocks(String exchangeStubbedResponse, String checkerStubbedResponse) {
         setupMocks(exchangeStubbedResponse);
-        Mockito.when(checker.getStubbedResponse(anyString())).thenReturn(Optional.ofNullable(checkerStubbedResponse));
+        MockRule rule = null;
+        if (checkerStubbedResponse != null) {
+            rule = new MockRule();
+            rule.setBody(checkerStubbedResponse);
+        }
+        Mockito.when(checker.getMockRule(anyString())).thenReturn(Optional.ofNullable(rule));
     }
 
     private void setupMocks(String exchangeStubbedResponse) {
