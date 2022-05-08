@@ -1,7 +1,8 @@
 package com.github.afanas10101111.mp.service;
 
+import com.github.afanas10101111.mp.MockRuleTestBuilder;
+import com.github.afanas10101111.mp.PatternKeeperTestBuilder;
 import com.github.afanas10101111.mp.model.MockRule;
-import com.github.afanas10101111.mp.model.PatternKeeper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -71,19 +72,16 @@ class RequestBodyCheckerTest {
     }
 
     private void prepareRule(int repeatLimit, int repeatCounter, String... patterns) {
-        MockRule rule = new MockRule();
-        rule.setBody(SUBBED_RESPONSE);
-        rule.setRepeatLimit(repeatLimit);
-        rule.setRepeatCounter(repeatCounter);
-        rule.setPatterns(
-                Arrays.stream(patterns)
-                        .map(p -> {
-                            PatternKeeper patternKeeper = new PatternKeeper();
-                            patternKeeper.setPattern(p);
-                            return patternKeeper;
-                        })
-                        .collect(Collectors.toSet())
-        );
+        MockRule rule = MockRuleTestBuilder.aMockRule()
+                .withPatterns(
+                        Arrays.stream(patterns)
+                                .map(p -> PatternKeeperTestBuilder.aPatternKeeper().withPattern(p).build())
+                                .collect(Collectors.toList())
+                )
+                .withBody(SUBBED_RESPONSE)
+                .withRepeatLimit(repeatLimit)
+                .withRepeatCounter(repeatCounter)
+                .build();
         Mockito.when(service.getAll()).thenReturn(Collections.singletonList(rule));
     }
 }

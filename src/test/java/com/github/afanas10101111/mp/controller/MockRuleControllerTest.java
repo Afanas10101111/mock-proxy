@@ -1,11 +1,14 @@
 package com.github.afanas10101111.mp.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.afanas10101111.mp.MockRuleTestBuilder;
+import com.github.afanas10101111.mp.PatternKeeperTestBuilder;
+import com.github.afanas10101111.mp.dto.ErrorTo;
 import com.github.afanas10101111.mp.dto.MockRuleTo;
-import com.github.afanas10101111.mp.dto.PatternKeeperTo;
 import com.github.afanas10101111.mp.model.MockRule;
-import com.github.afanas10101111.mp.model.PatternKeeper;
 import com.github.afanas10101111.mp.service.MockRuleService;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -14,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
@@ -35,14 +39,17 @@ class MockRuleControllerTest {
     private static final String URL = MockRuleController.URL;
     private static final String GROUP = MockRuleController.GROUP;
     private static final String ID_TO_DELETE = "/1";
-    private static final String RULE = "{\"patterns\":[{\"pattern\":\"PATTERN\"}],\"status\":200,\"contentType\":\"text/xml;charset=UTF-8\",\"body\":\"STUB\",\"repeatLimit\":4}";
-    private static final String RULES = "[{\"patterns\":[{\"pattern\":\"PATTERN#1\"}],\"status\":200,\"contentType\":\"text/xml;charset=UTF-8\",\"body\":\"STUB#1\",\"repeatLimit\":4},{\"patterns\":[{\"pattern\":\"PATTERN#2\"}],\"status\":200,\"contentType\":\"text/xml;charset=UTF-8\",\"body\":\"STUB#2\",\"repeatLimit\":4}]";
-    private static final String RESPONSE = "[{\"id\":null,\"patterns\":[{\"pattern\":\"PATTERN!!!\"}],\"status\":200,\"contentType\":\"text/xml;charset=UTF-8\",\"body\":\"DEFAULT\",\"repeatLimit\":0,\"repeatCounter\":0}]";
 
-    private static final String ERROR_RESPONSE_FORMAT = "{\"type\":\"Error during mock rules administration\",\"reason\":\"%s\"}";
-    private static final String RULE_WITHOUT_STUB = "{\"patterns\":[{\"pattern\":\"PATTERN\"}],\"status\":200,\"contentType\":\"text/xml;charset=UTF-8\",\"repeatLimit\":4}";
-    private static final String RULE_WITHOUT_PATTERNS = "{\"status\":200,\"contentType\":\"text/xml;charset=UTF-8\",\"body\":\"STUB\",\"repeatLimit\":4}";
-    private static final String RULE_WITH_EMPTY_PATTERN = "{\"patterns\":[{\"pattern\":\"\"}],\"status\":200,\"contentType\":\"text/xml;charset=UTF-8\",\"body\":\"STUB\",\"repeatLimit\":4}";
+    private static final ObjectMapper MAPPER = new ObjectMapper();
+
+    private static MockRule RULE;
+    private static List<MockRule> RULES;
+
+    private static String RULE_STRING;
+    private static String RULES_STRING;
+    private static String RULE_WITHOUT_STUB_STRING;
+    private static String RULE_WITHOUT_PATTERNS_STRING;
+    private static String RULE_WITH_EMPTY_PATTERNS_STRING;
 
     @Autowired
     private MockMvc mockMvc;
@@ -50,39 +57,62 @@ class MockRuleControllerTest {
     @MockBean
     private MockRuleService service;
 
+    @BeforeAll
+    private static void setupRequestAndResponseStrings() throws JsonProcessingException {
+        RULE = MockRuleTestBuilder.aMockRule()
+                .withPatterns(Collections.singletonList(PatternKeeperTestBuilder.aPatternKeeper()
+                        .withPattern("PATTERN")
+                        .build()))
+                .withStatus(HttpStatus.OK)
+                .withContentType("text/xml;charset=UTF-8")
+                .withBody("body")
+                .withRepeatLimit(4)
+                .build();
+        RULES = MockRuleTestBuilder.aMockRule().buildList(2);
+
+        RULE_STRING = MAPPER.writeValueAsString(RULE);
+        RULES_STRING = MAPPER.writeValueAsString(RULES);
+        RULE_WITHOUT_STUB_STRING = MAPPER.writeValueAsString(MockRuleTestBuilder.aMockRule()
+                .withBody(null)
+                .build());
+        RULE_WITHOUT_PATTERNS_STRING
+                = "{\"status\":200,\"contentType\":\"text/xml;charset=UTF-8\",\"body\":\"STUB\",\"repeatLimit\":4}";
+        RULE_WITH_EMPTY_PATTERNS_STRING = MAPPER.writeValueAsString(MockRuleTestBuilder.aMockRule()
+                .withPatterns(Collections.emptyList())
+                .build());
+    }
+
     @BeforeEach
     private void serviceSetup() {
-        PatternKeeper pattern = new PatternKeeper();
-        pattern.setPattern("PATTERN!!!");
-        MockRule mockRule = MockRuleTestBuilder.aMockRule()
-                .withPatterns(Collections.singletonList(pattern))
-                .build();
-        List<MockRule> ruleList = Collections.singletonList(mockRule);
-        Mockito.when(service.getAll()).thenReturn(ruleList);
-        Mockito.when(service.save(any(MockRule.class))).thenReturn(mockRule);
-        Mockito.when(service.saveAll(anyList())).thenReturn(ruleList);
+        Mockito.when(service.getAll()).thenReturn(RULES);
+        Mockito.when(service.save(any(MockRule.class))).thenReturn(RULE);
+        Mockito.when(service.saveAll(anyList())).thenReturn(RULES);
     }
 
     @Test
     void getAll() throws Exception {
-        checkGetAndAdd(MockMvcRequestBuilders.get(URL), status().isOk(), RESPONSE);
+        checkGetAndAdd(MockMvcRequestBuilders.get(URL), status().isOk(), RULES_STRING);
     }
 
     @Test
     void add() throws Exception {
         checkGetAndAdd(
-                MockMvcRequestBuilders.post(URL).contentType(MediaType.APPLICATION_JSON).content(RULE),
+                MockMvcRequestBuilders.post(URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(RULE_STRING),
                 status().isCreated(),
-                RESPONSE
+                RULES_STRING
         );
     }
 
     @Test
     void addGroup() throws Exception {
         checkGetAndAdd(
-                MockMvcRequestBuilders.post(URL + GROUP).contentType(MediaType.APPLICATION_JSON).content(RULES),
+                MockMvcRequestBuilders.post(URL + GROUP)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(RULES_STRING),
                 status().isCreated(),
-                RESPONSE
+                RULES_STRING
         );
     }
 
@@ -99,31 +129,38 @@ class MockRuleControllerTest {
     @Test
     void addingRuleWithoutStubShouldGenerateAnError() throws Exception {
         checkGetAndAdd(
-                MockMvcRequestBuilders.post(URL).contentType(MediaType.APPLICATION_JSON).content(RULE_WITHOUT_STUB),
+                MockMvcRequestBuilders.post(URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(RULE_WITHOUT_STUB_STRING),
                 status().isBadRequest(),
-                String.format(ERROR_RESPONSE_FORMAT, MockRuleTo.BODY_VALIDATION_ERROR_MESSAGE)
+                getErrorString(MockRuleTo.BODY_VALIDATION_ERROR_MESSAGE)
         );
     }
 
     @Test
     void addingRuleWithoutPatternsShouldGenerateAnError() throws Exception {
         checkGetAndAdd(
-                MockMvcRequestBuilders.post(URL).contentType(MediaType.APPLICATION_JSON).content(RULE_WITHOUT_PATTERNS),
+                MockMvcRequestBuilders.post(URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(RULE_WITHOUT_PATTERNS_STRING),
                 status().isBadRequest(),
-                String.format(ERROR_RESPONSE_FORMAT, MockRuleTo.PATTERNS_VALIDATION_ERROR_MESSAGE)
+                getErrorString(MockRuleTo.PATTERNS_VALIDATION_ERROR_MESSAGE)
         );
     }
 
     @Test
-    void addingRuleWithEmptyPatternShouldGenerateAnError() throws Exception {
+    void addingRuleWithEmptyPatternsShouldGenerateAnError() throws Exception {
         checkGetAndAdd(
-                MockMvcRequestBuilders.post(URL).contentType(MediaType.APPLICATION_JSON).content(RULE_WITH_EMPTY_PATTERN),
+                MockMvcRequestBuilders.post(URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(RULE_WITH_EMPTY_PATTERNS_STRING),
                 status().isBadRequest(),
-                String.format(ERROR_RESPONSE_FORMAT, PatternKeeperTo.PATTERN_VALIDATION_ERROR_MESSAGE)
+                getErrorString(MockRuleTo.PATTERNS_VALIDATION_ERROR_MESSAGE)
         );
     }
 
-    private void checkGetAndAdd(RequestBuilder requestBuilder, ResultMatcher responseStatus, String response) throws Exception {
+    private void checkGetAndAdd(RequestBuilder requestBuilder, ResultMatcher responseStatus, String response)
+            throws Exception {
         mockMvc.perform(requestBuilder)
                 .andDo(print())
                 .andExpect(responseStatus)
@@ -135,5 +172,9 @@ class MockRuleControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.delete(url))
                 .andDo(print())
                 .andExpect(status().isNoContent());
+    }
+
+    private String getErrorString(String reason) throws JsonProcessingException {
+        return MAPPER.writeValueAsString(new ErrorTo(ErrorTo.ErrorType.RULE, reason));
     }
 }

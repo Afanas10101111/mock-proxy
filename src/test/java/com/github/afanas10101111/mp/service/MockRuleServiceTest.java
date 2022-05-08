@@ -2,7 +2,6 @@ package com.github.afanas10101111.mp.service;
 
 import com.github.afanas10101111.mp.MockRuleTestBuilder;
 import com.github.afanas10101111.mp.model.MockRule;
-import com.github.afanas10101111.mp.model.PatternKeeper;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,8 +10,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,42 +27,17 @@ class MockRuleServiceTest {
 
     @BeforeAll
     private static void prepareRuleCopyFromDB() {
-        PatternKeeper pattern = new PatternKeeper();
-        pattern.setPattern("PATTERN#0");
-        preparedRule = MockRuleTestBuilder.aMockRule()
-                .withId(INITIAL_COUNT_OF_RULES - 1)
-                .withBody("SUBBED RESPONSE #0")
-                .withPatterns(Collections.singletonList(pattern))
-                .withRepeatLimit(4)
-                .build();
-    }
-
-    private static List<MockRule> getNewRules(int count) {
-        List<MockRule> rules = new ArrayList<>(count);
-        for (int i = 1; i <= count; i++) {
-            PatternKeeper pattern = new PatternKeeper();
-            pattern.setPattern("PATTERN#" + i);
-            rules.add(MockRuleTestBuilder.aMockRule()
-                    .withBody("SUBBED RESPONSE #" + i)
-                    .withPatterns(Collections.singletonList(pattern))
-                    .withRepeatLimit(88)
-                    .build());
-        }
-        return rules;
+        preparedRule = MockRuleTestBuilder.aMockRule().build();
     }
 
     @Test
     void saveShouldSaveOneCertainRule() {
         assertThat(service.getAll()).hasSize(INITIAL_COUNT_OF_RULES);
-        MockRule newOne = getNewRules(3).get(2);
-        String newOneStub = newOne.getBody();
-        int newOneRepeatLimit = newOne.getRepeatLimit();
-        int newOneRepeatCounter = newOne.getRepeatCounter();
+        MockRule newOne = MockRuleTestBuilder.aMockRule().withRepeatLimit(1).build();
+        MockRule newOnesCopyForCompare = MockRuleTestBuilder.aMockRule().withRepeatLimit(1).build();
 
         MockRule saved = service.save(newOne);
-        assertThat(saved.getBody()).isEqualTo(newOneStub);
-        assertThat(saved.getRepeatLimit()).isEqualTo(newOneRepeatLimit);
-        assertThat(saved.getRepeatCounter()).isEqualTo(newOneRepeatCounter);
+        assertThat(saved).isEqualTo(newOnesCopyForCompare);
         List<MockRule> all = service.getAll();
         assertThat(all).hasSize(INITIAL_COUNT_OF_RULES + 1);
     }
@@ -73,8 +45,8 @@ class MockRuleServiceTest {
     @Test
     void duplicatedRulesShouldNotBeSaved() {
         assertThat(service.getAll()).hasSize(INITIAL_COUNT_OF_RULES);
-        MockRule rule = getNewRules(1).get(0);
-        MockRule duplicate = getNewRules(1).get(0);
+        MockRule rule = MockRuleTestBuilder.aMockRule().withRepeatLimit(1).build();
+        MockRule duplicate = MockRuleTestBuilder.aMockRule().withRepeatLimit(1).build();
 
         service.save(rule);
         assertThat(service.getAll()).hasSize(INITIAL_COUNT_OF_RULES + 1);
@@ -87,7 +59,7 @@ class MockRuleServiceTest {
         assertThat(service.getAll()).hasSize(INITIAL_COUNT_OF_RULES);
 
         int ruleListToSaveSize = 6;
-        List<MockRule> ruleListToSave = getNewRules(ruleListToSaveSize);
+        List<MockRule> ruleListToSave = MockRuleTestBuilder.aMockRule().buildList(ruleListToSaveSize);
         List<MockRule> savedRules = service.saveAll(ruleListToSave);
         assertThat(savedRules).hasSize(ruleListToSaveSize);
         assertThat(service.getAll()).hasSize(INITIAL_COUNT_OF_RULES + ruleListToSaveSize);
