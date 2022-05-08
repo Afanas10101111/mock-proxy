@@ -26,7 +26,7 @@ class MockRuleServiceTest {
     private MockRuleService service;
 
     @BeforeAll
-    private static void prepareRuleCopyFromDB() {
+    static void prepareRuleCopyFromDB() {
         preparedRule = MockRuleTestBuilder.aMockRule().build();
     }
 

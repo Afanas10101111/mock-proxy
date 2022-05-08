@@ -58,7 +58,7 @@ class MockRuleControllerTest {
     private MockRuleService service;
 
     @BeforeAll
-    private static void setupRequestAndResponseStrings() throws JsonProcessingException {
+    static void setupRequestAndResponseStrings() throws JsonProcessingException {
         RULE = MockRuleTestBuilder.aMockRule()
                 .withPatterns(Collections.singletonList(PatternKeeperTestBuilder.aPatternKeeper()
                         .withPattern("PATTERN")
@@ -83,7 +83,7 @@ class MockRuleControllerTest {
     }
 
     @BeforeEach
-    private void serviceSetup() {
+    void serviceSetup() {
         Mockito.when(service.getAll()).thenReturn(RULES);
         Mockito.when(service.save(any(MockRule.class))).thenReturn(RULE);
         Mockito.when(service.saveAll(anyList())).thenReturn(RULES);
