@@ -1,3 +1,5 @@
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/49bbb210cd074249ae900c804abd747c)](https://www.codacy.com/gh/Afanas10101111/mock-proxy/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Afanas10101111/mock-proxy&amp;utm_campaign=Badge_Grade)
+
 Mock proxy service
 ========
 This service can be used when you need to simulate a specific response to a post request from a server.
@@ -8,10 +10,10 @@ This service can be used when you need to simulate a specific response to a post
 3. configure application.properties:
     * server.port - this port the service will be listen
     * h2-console.port - on this port H2 console will be available
-    * proxy.path - specify the path for redirecting
-    * proxy.url - specify the url for redirecting
+    * proxy.path - specify the path for forwarding
+    * proxy.url - specify the url for forwarding
 4. start the service by executing java -jar mock-proxy.jar
-5. configure mock rules using the API - server.Url:serverPort/_admin_config
+5. configure mock rules using the API - serverUrl:serverPort/_admin_config
 6. profit!!!
 
 ### API for setting up rules
