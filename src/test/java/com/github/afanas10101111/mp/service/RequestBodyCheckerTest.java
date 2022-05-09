@@ -1,7 +1,8 @@
 package com.github.afanas10101111.mp.service;
 
+import com.github.afanas10101111.mp.MockRuleTestBuilder;
+import com.github.afanas10101111.mp.PatternKeeperTestBuilder;
 import com.github.afanas10101111.mp.model.MockRule;
-import com.github.afanas10101111.mp.model.PatternKeeper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -29,59 +30,58 @@ class RequestBodyCheckerTest {
     @Test
     void responseForNoMatchingBodyShouldNotBePresent() {
         prepareRule(1, 0, "PATTERN");
-        Optional<String> response = checker.getStubbedResponse("some body without pattern");
+        Optional<MockRule> response = checker.getMockRule("some body without pattern");
         assertThat(response).isNotPresent();
     }
 
     @Test
     void responseForMatchingBodyShouldBeStubbed() {
         prepareRule(1, 0, "PATTERN");
-        Optional<String> response = checker.getStubbedResponse("...PATTERN...");
-        assertThat(response).contains(SUBBED_RESPONSE);
+        Optional<MockRule> response = checker.getMockRule("...PATTERN...");
+        assertThat(response).isPresent();
+        assertThat(response.get().getBody()).contains(SUBBED_RESPONSE);
     }
 
     @Test
     void responseForMatchingBodyWithOverLimitRepeatCounterShouldNotBePresent() {
         prepareRule(2, 2, "PATTERN");
-        Optional<String> response = checker.getStubbedResponse("...PATTERN...");
+        Optional<MockRule> response = checker.getMockRule("...PATTERN...");
         assertThat(response).isNotPresent();
     }
 
     @Test
     void repeatCounterShouldBeResetAfterOverLimit() {
         prepareRule(2, 2, "PATTERN");
-        checker.getStubbedResponse("...PATTERN...");
+        checker.getMockRule("...PATTERN...");
         assertThat(service.getAll().get(0).getRepeatCounter()).isZero();
     }
 
     @Test
     void responseForMatchingSeveralPatternsBodyShouldBeStubbed() {
         prepareRule(1, 0, "PATTERN", "^\\d*[13579]\\.");
-        Optional<String> response = checker.getStubbedResponse("131...PATTERN...");
-        assertThat(response).contains(SUBBED_RESPONSE);
+        Optional<MockRule> response = checker.getMockRule("131...PATTERN...");
+        assertThat(response).isPresent();
+        assertThat(response.get().getBody()).contains(SUBBED_RESPONSE);
     }
 
     @Test
     void responseForMatchingNotAllOfSeveralPatternsBodyShouldNotBePresent() {
         prepareRule(1, 0, "PATTERN", "^\\d*[13579]\\.");
-        Optional<String> response = checker.getStubbedResponse("130...PATTERN...");
+        Optional<MockRule> response = checker.getMockRule("130...PATTERN...");
         assertThat(response).isNotPresent();
     }
 
     private void prepareRule(int repeatLimit, int repeatCounter, String... patterns) {
-        MockRule rule = new MockRule();
-        rule.setStub(SUBBED_RESPONSE);
-        rule.setRepeatLimit(repeatLimit);
-        rule.setRepeatCounter(repeatCounter);
-        rule.setPatterns(
-                Arrays.stream(patterns)
-                        .map(p -> {
-                            PatternKeeper patternKeeper = new PatternKeeper();
-                            patternKeeper.setPattern(p);
-                            return patternKeeper;
-                        })
-                        .collect(Collectors.toSet())
-        );
+        MockRule rule = MockRuleTestBuilder.aMockRule()
+                .withPatterns(
+                        Arrays.stream(patterns)
+                                .map(p -> PatternKeeperTestBuilder.aPatternKeeper().withPattern(p).build())
+                                .collect(Collectors.toList())
+                )
+                .withBody(SUBBED_RESPONSE)
+                .withRepeatLimit(repeatLimit)
+                .withRepeatCounter(repeatCounter)
+                .build();
         Mockito.when(service.getAll()).thenReturn(Collections.singletonList(rule));
     }
 }

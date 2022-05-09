@@ -1,8 +1,12 @@
 package com.github.afanas10101111.mp.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.github.afanas10101111.mp.model.serializer.HttpStatusSerializer;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.springframework.http.HttpStatus;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -19,7 +23,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Data
-@EqualsAndHashCode(exclude = "id")
+@EqualsAndHashCode(exclude = {"id", "repeatCounter"})
 @Entity
 @Table(name = "rules")
 public class MockRule {
@@ -34,11 +38,19 @@ public class MockRule {
     private Set<PatternKeeper> patterns = new HashSet<>();
 
     @NotNull
-    private String stub;
+    @JsonSerialize(using = HttpStatusSerializer.class)
+    private HttpStatus status;
+
+    @NotNull
+    private String contentType;
+
+    @NotNull
+    private String body;
 
     private int repeatLimit;
     private int repeatCounter;
 
+    @JsonIgnore
     public int getAndIncrementRepeatCounter() {
         return repeatCounter++;
     }

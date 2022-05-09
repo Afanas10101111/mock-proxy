@@ -11,7 +11,7 @@
 
     <groupId>com.github.afanas10101111</groupId>
     <artifactId>mock-proxy</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <name>mock-proxy</name>
     <description>Can mock or can forward. You choose.</description>
 
