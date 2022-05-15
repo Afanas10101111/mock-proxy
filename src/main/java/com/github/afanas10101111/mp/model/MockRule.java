@@ -2,7 +2,9 @@ package com.github.afanas10101111.mp.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.github.afanas10101111.mp.model.serializer.HttpStatusDeserializer;
 import com.github.afanas10101111.mp.model.serializer.HttpStatusSerializer;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -39,6 +41,7 @@ public class MockRule {
 
     @NotNull
     @JsonSerialize(using = HttpStatusSerializer.class)
+    @JsonDeserialize(using = HttpStatusDeserializer.class)
     private HttpStatus status;
 
     @NotNull
