@@ -31,7 +31,7 @@ public class MockRuleFileService {
     private Path appFolderPath;
 
     @PostConstruct
-    void appPathConstruct() {
+    private void appPathConstruct() {
         appFolderLocationString = MockRuleFileService.class
                 .getProtectionDomain()
                 .getCodeSource()
@@ -42,13 +42,17 @@ public class MockRuleFileService {
         appFolderPath = Paths.get(URI.create(appFolderLocationString));
     }
 
+    public String getFilePathString(String fileName) {
+        return String.format(FULL_PATH_FORMAT, appFolderLocationString, fileName, FILE_EXTENSION);
+    }
+
     public List<MockRule> save(String fileName) {
         try {
             List<MockRule> rules = service.getAll();
             Files.write(getFilePath(fileName), mapper.writeValueAsString(rules).getBytes(StandardCharsets.UTF_8));
             return rules;
         } catch (IOException e) {
-            throw new SavedFileAccessException(e.getMessage(), e);
+            throw new SavedFileAccessException(e);
         }
     }
 
@@ -59,7 +63,7 @@ public class MockRuleFileService {
             service.saveAll(rules);
             return service.getAll();
         } catch (IOException e) {
-            throw new SavedFileAccessException(e.getMessage(), e);
+            throw new SavedFileAccessException(e);
         }
     }
 
@@ -72,7 +76,7 @@ public class MockRuleFileService {
                     .map(f -> f.replaceFirst(FILE_EXTENSION, ""))
                     .collect(Collectors.toSet());
         } catch (IOException e) {
-            throw new SavedFileAccessException(e.getMessage(), e);
+            throw new SavedFileAccessException(e);
         }
     }
 
@@ -80,7 +84,7 @@ public class MockRuleFileService {
         try {
             Files.delete(getFilePath(fileName));
         } catch (IOException e) {
-            throw new SavedFileAccessException(e.getMessage(), e);
+            throw new SavedFileAccessException(e);
         }
     }
 
@@ -92,14 +96,12 @@ public class MockRuleFileService {
         try {
             return readRulesFromFile(fileName);
         } catch (IOException e) {
-            throw new SavedFileAccessException(e.getMessage(), e);
+            throw new SavedFileAccessException(e);
         }
     }
 
     private Path getFilePath(String fileName) {
-        return Paths.get(
-                URI.create(String.format(FULL_PATH_FORMAT, appFolderLocationString, fileName, FILE_EXTENSION))
-        );
+        return Paths.get(URI.create(getFilePathString(fileName)));
     }
 
     private List<MockRule> readRulesFromFile(String fileName) throws IOException {

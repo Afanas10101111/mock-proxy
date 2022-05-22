@@ -5,6 +5,7 @@ import com.github.afanas10101111.mp.model.MockRule;
 import com.github.afanas10101111.mp.service.RequestBodyChecker;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -29,15 +30,18 @@ class PreFilterTest {
     private GatewayFilterChain chain;
 
     @Mock
-    private ProxyConfig proxyConfig;
+    private ProxyConfig config;
 
     @Mock
     private RequestBodyChecker checker;
 
+    @InjectMocks
+    private PreFilter preFilter;
+
     @Test
     void requestWithEmptyBodyShouldNotBeStubbed() {
         setupMocks(null);
-        Mono<Void> filter = new PreFilter(proxyConfig, checker).filter(exchange, chain);
+        Mono<Void> filter = preFilter.filter(exchange, chain);
 
         Mockito.verify(checker, Mockito.never()).getMockRule(anyString());
         Mockito.verify(exchange, Mockito.never()).getResponse();
@@ -48,7 +52,7 @@ class PreFilterTest {
     @Test
     void requestNotMatchingRulesShouldNotBeStubbed() {
         setupMocks("someBodyWithoutStub", null);
-        Mono<Void> filter = new PreFilter(proxyConfig, checker).filter(exchange, chain);
+        Mono<Void> filter = preFilter.filter(exchange, chain);
 
         Mockito.verify(checker, Mockito.only()).getMockRule(anyString());
         Mockito.verify(exchange, Mockito.never()).getResponse();
@@ -61,7 +65,7 @@ class PreFilterTest {
         setupMocks("someBodyWithStub", "someStub");
         ServerHttpResponse response = Mockito.mock(ServerHttpResponse.class);
         Mockito.when(exchange.getResponse()).thenReturn(response);
-        Mono<Void> filter = new PreFilter(proxyConfig, checker).filter(exchange, chain);
+        Mono<Void> filter = preFilter.filter(exchange, chain);
 
         Mockito.verify(checker, Mockito.only()).getMockRule(anyString());
         Mockito.verify(exchange, Mockito.atLeastOnce()).getResponse();

@@ -33,8 +33,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest
+@WebMvcTest(MockRuleController.class)
 @Import(ModelMapper.class)
+@MockBean(MockRuleService.class)
 class MockRuleControllerTest {
     private static final String URL = MockRuleController.URL;
     private static final String GROUP = MockRuleController.GROUP;
@@ -54,7 +55,7 @@ class MockRuleControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @Autowired
     private MockRuleService service;
 
     @BeforeAll
@@ -90,12 +91,12 @@ class MockRuleControllerTest {
     }
 
     @Test
-    void getAll() throws Exception {
+    void getAllShouldReturnAllRulesList() throws Exception {
         checkGetAndAdd(MockMvcRequestBuilders.get(URL), status().isOk(), RULES_STRING);
     }
 
     @Test
-    void add() throws Exception {
+    void addShouldAddRuleToDbAndReturnAllRulesList() throws Exception {
         checkGetAndAdd(
                 MockMvcRequestBuilders.post(URL)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -106,7 +107,7 @@ class MockRuleControllerTest {
     }
 
     @Test
-    void addGroup() throws Exception {
+    void addGroupShouldAddRuleListToDbAndReturnAllRulesList() throws Exception {
         checkGetAndAdd(
                 MockMvcRequestBuilders.post(URL + GROUP)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -117,12 +118,12 @@ class MockRuleControllerTest {
     }
 
     @Test
-    void delete() throws Exception {
+    void deleteShouldDeleteOneCertainRule() throws Exception {
         checkDelete(URL + ID_TO_DELETE);
     }
 
     @Test
-    void deleteAll() throws Exception {
+    void deleteAllShouldDeleteAllRules() throws Exception {
         checkDelete(URL);
     }
 

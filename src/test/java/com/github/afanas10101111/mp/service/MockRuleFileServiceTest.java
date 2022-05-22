@@ -45,6 +45,12 @@ class MockRuleFileServiceTest {
     }
 
     @Test
+    void getFilePathStringShouldReturnCorrectPath() {
+        String filePathString = fileService.getFilePathString(FIRST_NAME);
+        assertThat(filePathString).endsWith(FIRST_NAME + MockRuleFileService.FILE_EXTENSION);
+    }
+
+    @Test
     void saveShouldSaveCurrentRuleListToFile() {
         List<MockRule> result = fileService.save(SAVED_NAME);
         assertThat(result).isEqualTo(rules);

@@ -12,6 +12,7 @@ public class ErrorTo {
     @RequiredArgsConstructor
     public enum ErrorType {
         RULE("Error during mock rules administration"),
+        FILE("Error during file administration"),
         PROXY("Proxy error");
 
         private final String description;
