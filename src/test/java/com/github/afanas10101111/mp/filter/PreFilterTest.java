@@ -24,16 +24,16 @@ class PreFilterTest {
     private final Mono<Void> empty = Mono.empty();
 
     @Mock
-    private ServerWebExchange exchange;
+    private ServerWebExchange exchangeMock;
 
     @Mock
-    private GatewayFilterChain chain;
+    private GatewayFilterChain chainMock;
 
     @Mock
-    private ProxyConfig config;
+    private ProxyConfig configMock;
 
     @Mock
-    private RequestBodyChecker checker;
+    private RequestBodyChecker checkerMock;
 
     @InjectMocks
     private PreFilter preFilter;
@@ -41,22 +41,22 @@ class PreFilterTest {
     @Test
     void requestWithEmptyBodyShouldNotBeStubbed() {
         setupMocks(null);
-        Mono<Void> filter = preFilter.filter(exchange, chain);
+        Mono<Void> filter = preFilter.filter(exchangeMock, chainMock);
 
-        Mockito.verify(checker, Mockito.never()).getMockRule(anyString());
-        Mockito.verify(exchange, Mockito.never()).getResponse();
-        Mockito.verify(exchange, Mockito.never()).getAttributes();
+        Mockito.verify(checkerMock, Mockito.never()).getMockRule(anyString());
+        Mockito.verify(exchangeMock, Mockito.never()).getResponse();
+        Mockito.verify(exchangeMock, Mockito.never()).getAttributes();
         assertThat(filter).isEqualTo(empty);
     }
 
     @Test
     void requestNotMatchingRulesShouldNotBeStubbed() {
         setupMocks("someBodyWithoutStub", null);
-        Mono<Void> filter = preFilter.filter(exchange, chain);
+        Mono<Void> filter = preFilter.filter(exchangeMock, chainMock);
 
-        Mockito.verify(checker, Mockito.only()).getMockRule(anyString());
-        Mockito.verify(exchange, Mockito.never()).getResponse();
-        Mockito.verify(exchange, Mockito.never()).getAttributes();
+        Mockito.verify(checkerMock, Mockito.only()).getMockRule(anyString());
+        Mockito.verify(exchangeMock, Mockito.never()).getResponse();
+        Mockito.verify(exchangeMock, Mockito.never()).getAttributes();
         assertThat(filter).isEqualTo(empty);
     }
 
@@ -64,12 +64,12 @@ class PreFilterTest {
     void requestMatchingRulesShouldBeStubbed() {
         setupMocks("someBodyWithStub", "someStub");
         ServerHttpResponse response = Mockito.mock(ServerHttpResponse.class);
-        Mockito.when(exchange.getResponse()).thenReturn(response);
-        Mono<Void> filter = preFilter.filter(exchange, chain);
+        Mockito.when(exchangeMock.getResponse()).thenReturn(response);
+        Mono<Void> filter = preFilter.filter(exchangeMock, chainMock);
 
-        Mockito.verify(checker, Mockito.only()).getMockRule(anyString());
-        Mockito.verify(exchange, Mockito.atLeastOnce()).getResponse();
-        Mockito.verify(exchange, Mockito.atLeastOnce()).getAttributes();
+        Mockito.verify(checkerMock, Mockito.only()).getMockRule(anyString());
+        Mockito.verify(exchangeMock, Mockito.atLeastOnce()).getResponse();
+        Mockito.verify(exchangeMock, Mockito.atLeastOnce()).getAttributes();
         assertThat(filter).isNotEqualTo(empty);
     }
 
@@ -80,11 +80,11 @@ class PreFilterTest {
             rule = new MockRule();
             rule.setBody(checkerStubbedResponse);
         }
-        Mockito.when(checker.getMockRule(anyString())).thenReturn(Optional.ofNullable(rule));
+        Mockito.when(checkerMock.getMockRule(anyString())).thenReturn(Optional.ofNullable(rule));
     }
 
     private void setupMocks(String exchangeStubbedResponse) {
-        Mockito.when(chain.filter(exchange)).thenReturn(empty);
-        Mockito.when(exchange.getAttribute(anyString())).thenReturn(exchangeStubbedResponse);
+        Mockito.when(chainMock.filter(exchangeMock)).thenReturn(empty);
+        Mockito.when(exchangeMock.getAttribute(anyString())).thenReturn(exchangeStubbedResponse);
     }
 }

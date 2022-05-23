@@ -27,14 +27,14 @@ class MockRuleFileServiceTest {
     private static final List<MockRule> rules = MockRuleTestBuilder.aMockRule().buildList(4);
 
     @Autowired
-    private MockRuleService ruleService;
+    private MockRuleService ruleServiceMock;
 
     @Autowired
     private MockRuleFileService fileService;
 
     @BeforeEach
     void prepare() {
-        Mockito.when(ruleService.getAll()).thenReturn(new ArrayList<>(rules));
+        Mockito.when(ruleServiceMock.getAll()).thenReturn(new ArrayList<>(rules));
         fileService.save(FIRST_NAME);
         fileService.save(SECOND_NAME);
     }
@@ -61,7 +61,7 @@ class MockRuleFileServiceTest {
     void loadShouldAddRulesFromFileToCurrentRuleList() {
         List<MockRule> result = fileService.load(FIRST_NAME);
         assertThat(result).isEqualTo(rules);
-        Mockito.verify(ruleService, Mockito.times(1)).saveAll(rules);
+        Mockito.verify(ruleServiceMock, Mockito.times(1)).saveAll(rules);
     }
 
     @Test

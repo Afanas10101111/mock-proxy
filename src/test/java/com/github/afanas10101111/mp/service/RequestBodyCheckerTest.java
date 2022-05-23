@@ -22,7 +22,7 @@ class RequestBodyCheckerTest {
     private static final String SUBBED_RESPONSE = "SUBBED RESPONSE";
 
     @Mock
-    private MockRuleService service;
+    private MockRuleService serviceMock;
 
     @InjectMocks
     private RequestBodyChecker checker;
@@ -53,7 +53,7 @@ class RequestBodyCheckerTest {
     void repeatCounterShouldBeResetAfterOverLimit() {
         prepareRule(2, 2, "PATTERN");
         checker.getMockRule("...PATTERN...");
-        assertThat(service.getAll().get(0).getRepeatCounter()).isZero();
+        assertThat(serviceMock.getAll().get(0).getRepeatCounter()).isZero();
     }
 
     @Test
@@ -82,6 +82,6 @@ class RequestBodyCheckerTest {
                 .withRepeatLimit(repeatLimit)
                 .withRepeatCounter(repeatCounter)
                 .build();
-        Mockito.when(service.getAll()).thenReturn(Collections.singletonList(rule));
+        Mockito.when(serviceMock.getAll()).thenReturn(Collections.singletonList(rule));
     }
 }
