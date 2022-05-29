@@ -22,7 +22,9 @@ import java.util.stream.Stream;
 @Service
 public class MockRuleFileService {
     public static final String FILE_EXTENSION = ".rules";
+    public static final String FILE_WITH_EXTENSION_FORMAT = "%s%s";
     public static final String FULL_PATH_FORMAT = "%s%s%s";
+    public static final String EMPTY_STRING = "";
 
     private final MockRuleService service;
     private final ObjectMapper mapper;
@@ -37,8 +39,7 @@ public class MockRuleFileService {
                 .getCodeSource()
                 .getLocation()
                 .toString()
-                .replaceFirst("^jar:", "")
-                .replaceFirst("[^/]+\\.jar.+$", "");
+                .replaceAll("(^jar:)|([^/]+\\.jar.*$)", EMPTY_STRING);
         appFolderPath = Paths.get(URI.create(appFolderLocationString));
     }
 
@@ -73,7 +74,7 @@ public class MockRuleFileService {
                     .filter(f -> !Files.isDirectory(f))
                     .map(f -> f.getFileName().toString())
                     .filter(f -> f.endsWith(FILE_EXTENSION))
-                    .map(f -> f.replaceFirst(FILE_EXTENSION, ""))
+                    .map(f -> f.replaceFirst(FILE_EXTENSION, EMPTY_STRING))
                     .collect(Collectors.toSet());
         } catch (IOException e) {
             throw new SavedFileAccessException(e);
@@ -101,11 +102,12 @@ public class MockRuleFileService {
     }
 
     private Path getFilePath(String fileName) {
-        return Paths.get(URI.create(getFilePathString(fileName)));
+        return appFolderPath.resolve(String.format(FILE_WITH_EXTENSION_FORMAT, fileName, FILE_EXTENSION));
     }
 
     private List<MockRule> readRulesFromFile(String fileName) throws IOException {
-        String fileAsString = String.join("", Files.readAllLines(getFilePath(fileName), StandardCharsets.UTF_8));
+        String fileAsString =
+                String.join(EMPTY_STRING, Files.readAllLines(getFilePath(fileName), StandardCharsets.UTF_8));
         return mapper.readerFor(MockRule.class).readValues(fileAsString).readAll().stream()
                 .map(MockRule.class::cast)
                 .collect(Collectors.toList());
