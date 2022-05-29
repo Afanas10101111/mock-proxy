@@ -1,7 +1,11 @@
 Release Notes
 ========
 
-## 1.0.0
+## 1.1.0
+
+* [FEATURE] MP-5: Implement the ability to save rules
+
+# 1.0.0
 
 MVP version is ready:
 * Configure the request body patterns to choose which request should be intercepted
