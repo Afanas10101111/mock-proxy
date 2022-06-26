@@ -18,7 +18,8 @@ import org.springframework.util.StringUtils;
 @Configuration
 @ConfigurationProperties(prefix = "proxy")
 public class ProxyConfig {
-    private static final String ROUTE_ID = "main";
+    private static final String WITH_BODY = "withBody";
+    private static final String WITHOUT_BODY = "withoutBody";
 
     private String path;
     private String url;
@@ -26,10 +27,13 @@ public class ProxyConfig {
     @Bean
     RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
         return builder.routes()
-                .route(ROUTE_ID, route -> route
+                .route(WITH_BODY, route -> route
                         .path(path)
                         .and()
                         .readBody(String.class, StringUtils::hasText)
+                        .uri(url))
+                .route(WITHOUT_BODY, route -> route
+                        .path(path)
                         .uri(url))
                 .build();
     }
