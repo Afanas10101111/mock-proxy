@@ -1,6 +1,10 @@
 Release Notes
 ========
 
+## 1.2.0
+
+* [FEATURE] MP-8: Add a response delay parameter
+
 ## 1.1.0
 
 * [FEATURE] MP-5: Implement the ability to save rules
