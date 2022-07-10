@@ -27,5 +27,6 @@ public class MockRuleTo {
     @NotEmpty(message = PATTERNS_VALIDATION_ERROR_MESSAGE)
     private List<@Valid PatternKeeperTo> patterns = new ArrayList<>();
 
+    private int delay;
     private int repeatLimit;
 }

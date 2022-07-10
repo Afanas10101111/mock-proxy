@@ -4,6 +4,7 @@ import com.github.afanas10101111.mp.config.ProxyConfig;
 import com.github.afanas10101111.mp.model.MockRule;
 import com.github.afanas10101111.mp.service.RequestBodyChecker;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
@@ -17,6 +18,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -28,6 +30,7 @@ public class PreFilter implements GlobalFilter {
     private final RequestBodyChecker checker;
 
     @Override
+    @SneakyThrows(InterruptedException.class)
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         String body = exchange.getAttribute(REQUEST_BODY_OBJECT);
         if (body != null) {
@@ -38,6 +41,7 @@ public class PreFilter implements GlobalFilter {
                 log.info("filter -> found rule:\n{}", rule);
                 ServerWebExchangeUtils.setResponseStatus(exchange, rule.getStatus());
                 ServerWebExchangeUtils.setAlreadyRouted(exchange);
+                TimeUnit.MILLISECONDS.sleep(rule.getDelay());
                 return chain.filter(exchange).then(Mono.defer(() -> {
                     ServerHttpResponse response = exchange.getResponse();
                     response.getHeaders().add(HttpHeaders.CONTENT_TYPE, rule.getContentType());

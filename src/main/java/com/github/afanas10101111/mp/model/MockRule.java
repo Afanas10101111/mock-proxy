@@ -50,6 +50,7 @@ public class MockRule {
     @NotNull
     private String body;
 
+    private int delay;
     private int repeatLimit;
     private int repeatCounter;
 
