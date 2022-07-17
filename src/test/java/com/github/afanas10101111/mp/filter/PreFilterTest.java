@@ -51,7 +51,7 @@ class PreFilterTest {
 
     @Test
     void requestNotMatchingRulesShouldNotBeStubbed() {
-        setupMocks("someBodyWithoutStub", null);
+        setupMocks("someBodyWithoutStub", null, null);
         Mono<Void> filter = preFilter.filter(exchangeMock, chainMock);
 
         Mockito.verify(checkerMock, Mockito.only()).getMockRule(anyString());
@@ -62,7 +62,7 @@ class PreFilterTest {
 
     @Test
     void requestMatchingRulesShouldBeStubbed() {
-        setupMocks("someBodyWithStub", "someStub");
+        setupMocks("someBodyWithStub", "someStub", null);
         ServerHttpResponse response = Mockito.mock(ServerHttpResponse.class);
         Mockito.when(exchangeMock.getResponse()).thenReturn(response);
         Mono<Void> filter = preFilter.filter(exchangeMock, chainMock);
@@ -73,12 +73,24 @@ class PreFilterTest {
         assertThat(filter).isNotEqualTo(empty);
     }
 
-    private void setupMocks(String exchangeStubbedResponse, String checkerStubbedResponse) {
+    @Test
+    void requestMatchingRulesWithHostShouldBeForwarding() {
+        setupMocks("someBodyWithStub", "someStub", "localhost");
+        Mono<Void> filter = preFilter.filter(exchangeMock, chainMock);
+
+        Mockito.verify(checkerMock, Mockito.only()).getMockRule(anyString());
+        Mockito.verify(exchangeMock, Mockito.atLeastOnce()).getAttributes();
+        Mockito.verify(exchangeMock, Mockito.never()).getResponse();
+        assertThat(filter).isEqualTo(empty);
+    }
+
+    private void setupMocks(String exchangeStubbedResponse, String checkerStubbedResponse, String ruleHost) {
         setupMocks(exchangeStubbedResponse);
         MockRule rule = null;
         if (checkerStubbedResponse != null) {
             rule = new MockRule();
             rule.setBody(checkerStubbedResponse);
+            rule.setHost(ruleHost);
         }
         Mockito.when(checkerMock.getMockRule(anyString())).thenReturn(Optional.ofNullable(rule));
     }

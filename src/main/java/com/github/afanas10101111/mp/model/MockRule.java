@@ -8,6 +8,7 @@ import com.github.afanas10101111.mp.model.serializer.HttpStatusDeserializer;
 import com.github.afanas10101111.mp.model.serializer.HttpStatusSerializer;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.hibernate.validator.constraints.Range;
 import org.springframework.http.HttpStatus;
 
 import javax.persistence.CascadeType;
@@ -53,6 +54,10 @@ public class MockRule {
     private int delay;
     private int repeatLimit;
     private int repeatCounter;
+
+    @Range(min = 0, max = 65535)
+    private int port;
+    private String host;
 
     @JsonIgnore
     public int getAndIncrementRepeatCounter() {

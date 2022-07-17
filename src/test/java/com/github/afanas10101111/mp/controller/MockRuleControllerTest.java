@@ -111,4 +111,15 @@ class MockRuleControllerTest extends ControllerTest {
                 getJsonError(ErrorTo.ErrorType.RULE, MockRuleTo.PATTERNS_VALIDATION_ERROR_MESSAGE)
         );
     }
+
+    @Test
+    void addingRuleWithPortOutOfRangeShouldGenerateAnError() throws Exception {
+        checkPostOrGet(
+                MockMvcRequestBuilders.post(URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(RULE_WITH_PORT_OUT_OF_RANGE_STRING),
+                status().isBadRequest(),
+                getJsonError(ErrorTo.ErrorType.RULE, MockRuleTo.PORT_VALIDATION_ERROR_MESSAGE)
+        );
+    }
 }
