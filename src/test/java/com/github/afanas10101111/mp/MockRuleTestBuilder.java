@@ -19,8 +19,11 @@ public class MockRuleTestBuilder {
     String contentType = "text/xml;charset=UTF-8";
     String body = "DEFAULT";
     List<PatternKeeper> patterns = Collections.singletonList(PatternKeeperTestBuilder.aPatternKeeper().build());
+    int delay = 0;
     int repeatLimit = 0;
     int repeatCounter = 0;
+    int port = 0;
+    String host = null;
 
     public MockRule build() {
         MockRule rule = new MockRule();
@@ -28,8 +31,11 @@ public class MockRuleTestBuilder {
         rule.setContentType(contentType);
         rule.setBody(body);
         rule.setPatterns(patterns);
+        rule.setDelay(delay);
         rule.setRepeatLimit(repeatLimit);
         rule.setRepeatCounter(repeatCounter);
+        rule.setPort(port);
+        rule.setHost(host);
         return rule;
     }
 
