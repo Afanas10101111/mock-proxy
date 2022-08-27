@@ -1,6 +1,13 @@
 Release Notes
 ========
 
+# 1.3.0
+
+Release version:
+* Configure the delay before returning the stub
+* Configure the host and port to forward the request to it
+* Save/load rules to/from a file
+
 ## 1.2.0
 
 * [FEATURE] MP-8: Add a response delay parameter

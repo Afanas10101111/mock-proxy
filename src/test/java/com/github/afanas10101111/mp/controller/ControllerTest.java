@@ -32,6 +32,7 @@ public abstract class ControllerTest {
     protected static String RULE_WITHOUT_STUB_STRING;
     protected static String RULE_WITHOUT_PATTERNS_STRING;
     protected static String RULE_WITH_EMPTY_PATTERNS_STRING;
+    protected static String RULE_WITH_PORT_OUT_OF_RANGE_STRING;
 
     protected MockMvc mockMvc;
 
@@ -57,6 +58,9 @@ public abstract class ControllerTest {
                 = "{\"status\":200,\"contentType\":\"text/xml;charset=UTF-8\",\"body\":\"STUB\",\"repeatLimit\":4}";
         RULE_WITH_EMPTY_PATTERNS_STRING = MAPPER.writeValueAsString(MockRuleTestBuilder.aMockRule()
                 .withPatterns(Collections.emptyList())
+                .build());
+        RULE_WITH_PORT_OUT_OF_RANGE_STRING = MAPPER.writeValueAsString(MockRuleTestBuilder.aMockRule()
+                .withPort(-1)
                 .build());
     }
 

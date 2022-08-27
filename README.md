@@ -21,14 +21,28 @@ Example of the POST-request body for setting up a rule:
 
 {"patterns": [{"pattern": "<AMOUNT>\\d*[13579]</AMOUNT>"}],"status": 200,"contentType": "text/html;charset=UTF-8","body": "WOW","repeatLimit": 3}
 
+Required parameters:
 * patterns - all defined patterns must be presented in the request body to trigger this rule
 * status - status of the stubbed response
 * contentType - contentType of the stubbed response
 * body - body of the stubbed response
+  
+Optional parameters:
 * repeatLimit - this rule will work for 3 requests, 4th will be forwarded on the proxy.url and counter for this rule will be reset
+* delay - delay before returning the stub is determined in milliseconds
+* host - if defined, the request will be forwarded to this host
+* port - port for the previously defined host
 
 To configure multiple rules in a single request send POST-request with an array of rules to /_admin_config/group.
 
 To view configured rules use GET-request.
 
 To delete all configured rules use DELETE-request. To delete a specific rule use DELETE-request with the rule ID.
+
+### API for saving/loading rules
+* POST /_admin_config/file/save/rules.bak - save the current rules to rules.bak
+* GET /_admin_config/file/load/rules.bak - load the rules from rules.bak and merge with current rules
+* GET /_admin_config/file - view a list of saved files
+* GET /_admin_config/file/rules.bak - view the content of rules.bak
+* DELETE /_admin_config/file/rules.bak - delete rules.bak
+* DELETE /_admin_config/file - delete all saved files
