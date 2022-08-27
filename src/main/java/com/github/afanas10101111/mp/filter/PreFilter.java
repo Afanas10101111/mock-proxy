@@ -6,7 +6,6 @@ import com.github.afanas10101111.mp.service.RequestBodyChecker;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.cloud.gateway.support.ServerWebExchangeUtils;
@@ -31,13 +30,13 @@ public class PreFilter implements GlobalFilter {
     private static final String REQUEST_BODY_OBJECT = "cachedRequestBodyObject";
     private static final String HOST_AND_PORT_FROM_RULE_FORMAT = "%s:%d";
 
+    private final ProxyConfig proxyConfig;
     private final RequestBodyChecker checker;
 
     private String forwardingUrl;
 
     @PostConstruct
-    @Autowired
-    private void setForwardingUrl(ProxyConfig proxyConfig) {
+    private void setForwardingUrl() {
         forwardingUrl = proxyConfig.getUrl();
     }
 
