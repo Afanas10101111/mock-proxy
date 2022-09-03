@@ -1,6 +1,11 @@
 Release Notes
 ========
 
+# 1.4.0
+
+Release version:
+* Use the swagger UI to simplify the administration of mock rules
+
 # 1.3.0
 
 Release version:

@@ -10,10 +10,12 @@ This service can be used when you need to simulate a specific response to a post
 3. configure application.properties:
     * server.port - this port the service will be listen
     * h2-console.port - on this port H2 console will be available
-    * proxy.path - specify the path for forwarding
+    * proxy.path-pattern - specify the request path pattern that trigger the proxy logic (excluded character(s), for example _ in standard (/[^_].*)|(/), must be synchronized with swagger-ui.base-url, otherwise swagger UI will be unavailable)
     * proxy.url - specify the url for forwarding
+   * springfox.documentation.swagger-ui.base-url - specify the base path to the swagger UI (for example, if you specify /_swagger full address will be serverUrl:serverPort/_swagger/swagger-ui/)
+    * springfox.documentation.swagger.v2.path - specify the path to the v2 docs
 4. start the service by executing java -jar mock-proxy.jar
-5. configure mock rules using the API - serverUrl:serverPort/_admin_config
+5. configure mock rules using the swagger UI or the API - serverUrl:serverPort/_admin_config
 6. profit!!!
 
 ### API for setting up rules
