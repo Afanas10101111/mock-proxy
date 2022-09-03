@@ -18,7 +18,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import javax.annotation.PostConstruct;
 import java.net.URI;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -32,13 +31,6 @@ public class PreFilter implements GlobalFilter {
 
     private final ProxyConfig proxyConfig;
     private final RequestBodyChecker checker;
-
-    private String forwardingUrl;
-
-    @PostConstruct
-    private void setForwardingUrl() {
-        forwardingUrl = proxyConfig.getUrl();
-    }
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
@@ -103,7 +95,7 @@ public class PreFilter implements GlobalFilter {
     }
 
     private Mono<Void> justForward(ServerWebExchange exchange, GatewayFilterChain chain) {
-        log.info("justForward -> forwarded on:\n{}", forwardingUrl);
+        log.info("justForward -> forwarded on:\n{}", proxyConfig.getUrl());
         return chain.filter(exchange);
     }
 }
